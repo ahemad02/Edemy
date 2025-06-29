@@ -8,9 +8,11 @@ export const clerkWebhooks = async (req, res) => {
 
     try {
 
+        console.log("✅ Received webhook:", req.body);
+
         const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
-        await whook.verify(JSON.stringify(req.body), {
+        await whook.verify(req.rawBody(req.body), {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"],
@@ -48,9 +50,12 @@ export const clerkWebhooks = async (req, res) => {
             }
 
             default:
+                console.log("⚠️ Unhandled webhook type:", type);
                 break;
         }
     } catch (error) {
+
+        console.error("❌ Clerk webhook error:", error.message);
 
         res.json({
             success: false,

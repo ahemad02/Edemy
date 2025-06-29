@@ -8,6 +8,7 @@ import { clerkMiddleware } from "@clerk/express";
 import connectCloudinary from "./configs/cloudinary.js";
 import courseRouter from "./routes/courseRoute.js";
 import userRouter from "./routes/userRoutes.js";
+import getRawBody from "raw-body";
 
 const app = express();
 
@@ -19,7 +20,16 @@ app.use(clerkMiddleware())
 app.get("/", (req, res) => {
     res.send("Hello from the backend!");
 });
-app.post("/clerk", express.json(), clerkWebhooks);
+app.post("/clerk", async (req, res, next) => {
+    try {
+        req.rawBody = await getRawBody(req);
+        req.body = JSON.parse(req.rawBody.toString("utf8"));
+        next();
+    } catch (err) {
+        console.error("❌ Failed to parse raw body for Clerk webhook", err);
+        res.status(400).send("Invalid body");
+    }
+}, clerkWebhooks);
 
 app.use("/api/educator", express.json(), educatorRouter);
 app.use("/api/course", express.json(), courseRouter)
