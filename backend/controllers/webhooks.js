@@ -38,7 +38,7 @@ export const clerkWebhooks = async (req, res) => {
                         success: false,
                         message: err.message
                     })
-                    break
+                    break;
                 }
 
             }
