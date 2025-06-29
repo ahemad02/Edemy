@@ -33,7 +33,11 @@ export const userEnrolledCourses = async (req, res) => {
         const user = await User.findById(userId).populate("enrolledCourses");
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(404).json({ success: false, message: "User not foundd" });
+        }
+
+        if (user.enrolledCourses.length === 0) {
+            return res.status(200).json({ success: true, message: "No enrolled courses found", enrolledCourses: [] });
         }
 
         res.status(200).json({ success: true, enrolledCourses: user.enrolledCourses });
