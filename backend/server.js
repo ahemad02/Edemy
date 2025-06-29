@@ -20,11 +20,11 @@ app.get("/", (req, res) => {
     res.send("Hello from the backend!");
 });
 
-app.post("/clerk", clerkWebhooks);
+app.post("/clerk", express.json(), clerkWebhooks); ""
+app.use("/api/educator", express.json(), educatorRouter);
+app.use("/api/course", express.json(), courseRouter)
+app.use("/api/user", express.json(), userRouter)
 app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
-app.use("/api/educator", educatorRouter);
-app.use("/api/course", courseRouter)
-app.use("/api/user", userRouter)
 
 const PORT = process.env.PORT || 3001;
 
