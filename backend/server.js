@@ -13,23 +13,14 @@ import getRawBody from "raw-body";
 const app = express();
 
 app.use(cors());
-// app.use(express.json());
+app.use(express.json());
 app.use(clerkMiddleware())
 
 // Routes
 app.get("/", (req, res) => {
     res.send("Hello from the backend!");
 });
-app.post("/clerk", async (req, res, next) => {
-    try {
-        req.rawBody = await getRawBody(req);
-        req.body = JSON.parse(req.rawBody.toString("utf8"));
-        next();
-    } catch (err) {
-        console.error("❌ Failed to parse raw body for Clerk webhook", err);
-        res.status(400).send("Invalid body");
-    }
-}, clerkWebhooks);
+app.post("/clerk", clerkWebhooks);
 
 app.use("/api/educator", express.json(), educatorRouter);
 app.use("/api/course", express.json(), courseRouter)
