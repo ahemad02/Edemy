@@ -5,51 +5,31 @@ import Purchase from "../models/Purchase.js";
 import Course from "../models/Course.js";
 
 export const clerkWebhooks = async (req, res) => {
-
     try {
-
-        console.log("✅ Received webhook:", req.body);
-
-        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-
-        await whook.verify(JSON.stringify(req.body), {
+        const payload = req.body; // raw buffer
+        const headers = {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"],
-        });
+        };
 
-        const { data, type } = req.body;
+        const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+        const evt = wh.verify(payload, headers);
+
+        console.log("✅ Clerk Webhook verified:", evt);
+
+        const { type, data } = evt;
 
         switch (type) {
             case "user.created": {
                 const userData = {
                     _id: data.id,
                     email: data.email_addresses[0].email_address,
-                    name: data.first_name + " " + data.last_name,
+                    name: `${data.first_name} ${data.last_name}`,
                     imageUrl: data.image_url,
-                }
-                try {
-                    await User.create(userData);
-                    res.json({})
-                    break;
-                } catch (err) {
-                    console.error("❌ DB insert error:", err.message);
-                    res.json({
-                        success: false,
-                        message: err.message
-                    })
-                    break;
-                }
-
-            }
-            case "user.updated": {
-                const userData = {
-                    email: data.email_addresses[0].email_address,
-                    name: data.first_name + " " + data.last_name,
-                    imageUrl: data.image_url,
-                }
-                await User.findByIdAndUpdate(data.id, userData);
-                res.json({})
+                };
+                await User.create(userData);
+                console.log("✅ User stored:", userData);
                 break;
             }
 
