@@ -13,14 +13,14 @@ import getRawBody from "raw-body";
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// app.use(express.json());
 app.use(clerkMiddleware())
 
 // Routes
 app.get("/", (req, res) => {
     res.send("Hello from the backend!");
 });
-app.post("/clerk", clerkWebhooks);
+app.post("/clerk", express.json(), clerkWebhooks);
 
 app.use("/api/educator", express.json(), educatorRouter);
 app.use("/api/course", express.json(), courseRouter)
