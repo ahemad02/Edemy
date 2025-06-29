@@ -17,10 +17,13 @@ app.use(cors());
 app.use(clerkMiddleware())
 
 // Routes
+
+app.use("/clerk", express.raw({ type: "*/*" }));
+app.post("/clerk", clerkWebhooks);
+
 app.get("/", (req, res) => {
     res.send("Hello from the backend!");
 });
-app.post("/clerk", express.json(), clerkWebhooks);
 
 app.use("/api/educator", express.json(), educatorRouter);
 app.use("/api/course", express.json(), courseRouter)
