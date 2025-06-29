@@ -20,7 +20,9 @@ app.use(clerkMiddleware())
 app.get("/", (req, res) => {
     res.send("Hello from the backend!");
 });
-app.post("/clerk", express.json(), clerkWebhooks);
+// Route setup (in server.js or index.js):
+app.post("/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
+
 
 app.use("/api/educator", express.json(), educatorRouter);
 app.use("/api/course", express.json(), courseRouter);
