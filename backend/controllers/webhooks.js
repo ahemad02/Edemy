@@ -17,7 +17,7 @@ export const clerkWebhooks = async (req, res) => {
 
         switch (type) {
             case 'user.created': {
-                const clerkUserId = data.id || data?.object_id || data?.external_id;
+                const clerkUserId = data.id || data.email_addresses[0].id;
                 if (!clerkUserId) {
                     console.error("❌ Clerk webhook user ID is missing", data);
                     return res.status(400).json({ success: false, message: "User ID is missing in webhook" });
