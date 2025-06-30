@@ -10,7 +10,7 @@ export const getUserData = async (req, res) => {
 
         const userId = req.auth.userId;
 
-        const user = await User.findById(userId);
+        const user = await User.findOne({ __id: userId });
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -30,7 +30,7 @@ export const userEnrolledCourses = async (req, res) => {
 
     try {
         const userId = req.auth.userId;
-        const user = await User.findById(userId).populate("enrolledCourses");
+        const user = await User.findOne({ __id: userId }).populate("enrolledCourses");
 
         console.log(userId);
         console.log(user);
