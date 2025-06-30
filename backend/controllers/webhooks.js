@@ -5,86 +5,50 @@ import Purchase from "../models/Purchase.js";
 import Course from "../models/Course.js";
 
 export const clerkWebhooks = async (req, res) => {
-
     try {
-        const headers = {
+        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
+
+        await whook.verify(JSON.stringify(req.body), {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
-            "svix-signature": req.headers["svix-signature"],
-        };
-
-        const payload = req.rawBody.toString("utf8");
-
-        const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-        const event = wh.verify(payload, headers); // 🚀 uses raw verified payload
-
-        const { type, data } = event;
-
-        if (!data?.id) {
-            console.error("❌ Missing Clerk user ID:", data);
-            return res.status(400).json({ success: false, message: "Missing user ID" });
-        }
+            "svix-signature": req.headers["svix-signature"]
+        })
+        const { data, type } = req.body
 
         switch (type) {
-            case "user.created": {
+            case 'user.created': {
                 const userData = {
                     _id: data.id,
-                    email: data.email_addresses?.[0]?.email_address || "",
-                    name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
-                    imageUrl: data.image_url || "",
-                };
-               try {
-        const existingUser = await User.findById(userData._id);
+                    email: data.email_addresses[0].email_address,
+                    name: data.first_name + " " + data.last_name,
+                    imageUrl: data.image_url,
 
-        if (!existingUser) {
-            await User.create(userData);
-            console.log("✅ User created in DB");
-        } else {
-            console.log("ℹ️ User already exists, skipping creation.");
-        }
-
-        res.json({ success: true });
-    } catch (err) {
-        console.error("❌ DB insert error:", err.message);
-        res.json({ success: false, message: err.message });
-    }
-
-    break;
-
+                }
+                await User.create(userData)
+                res.json({})
+                break;
             }
-            case "user.updated": {
+            case 'user.updated': {
                 const userData = {
                     email: data.email_addresses[0].email_address,
                     name: data.first_name + " " + data.last_name,
                     imageUrl: data.image_url,
                 }
-                await User.findByIdAndUpdate(data.id, userData);
+                await User.findByIdAndUpdate(data.id, userData)
                 res.json({})
                 break;
             }
-
-            case "user.deleted": {
-                await User.findByIdAndDelete(data.id);
+            case 'user.deleted': {
+                await User.findByIdAndDelete(data.id)
                 res.json({})
                 break;
             }
-
             default:
-                console.log("⚠️ Unhandled webhook type:", type);
                 break;
         }
     } catch (error) {
-
-        console.error("❌ Clerk webhook error:", error.message);
-
-        res.json({
-            success: false,
-            message: error.message
-        })
-
+        res.json({ success: false, message: error.message })
     }
-
-
 }
 
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);

@@ -9,39 +9,25 @@ import connectCloudinary from "./configs/cloudinary.js";
 import courseRouter from "./routes/courseRoute.js";
 import userRouter from "./routes/userRoutes.js";
 import getRawBody from "raw-body";
+const app = express()
+//connect to database
+await connectDB()
+await connectCloudinary()
+//Middleware
+app.use(cors())
 
-const app = express();
-
-app.use(cors());
-// app.use(express.json());
 app.use(clerkMiddleware())
 
-// Routes
-app.get("/", (req, res) => {
-    res.send("Hello from the backend!");
-});
-app.post("/clerk", async (req, res, next) => {
-    try {
-        req.rawBody = await getRawBody(req);
-        next();
-    } catch (err) {
-        console.error("❌ Error reading raw body", err.message);
-        res.status(400).send("Invalid raw body");
-    }
-}, express.json({ verify: (req, res, buf) => { req.rawBody = buf } }), clerkWebhooks);
-app.use("/api/educator", express.json(), educatorRouter);
-app.use("/api/course", express.json(), courseRouter);
-app.use("/api/user", express.json(), userRouter);
+//Routes
+app.get('/', (req, res) => res.send("API Working"))
+app.post('/clerk', express.json(), clerkWebhooks)
 
-app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
-
-const PORT = process.env.PORT || 3001;
-
-await connectCloudinary();
-await connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-}).catch((err) => {
-    console.log(err);
-});
+app.use('/api/educator', express.json(), educatorRouter)
+app.use('/api/course', express.json(), courseRouter)
+app.use('/api/user', express.json(), userRouter)
+app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
+//port
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`)
+})
