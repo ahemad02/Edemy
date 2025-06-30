@@ -25,11 +25,10 @@ app.post("/clerk", async (req, res, next) => {
         req.rawBody = await getRawBody(req);
         next();
     } catch (err) {
-        console.error("❌ Error parsing raw body", err.message);
-        return res.status(400).send("Invalid body");
+        console.error("❌ Error reading raw body", err.message);
+        res.status(400).send("Invalid raw body");
     }
-}, clerkWebhooks);
-
+}, express.json({ verify: (req, res, buf) => { req.rawBody = buf } }), clerkWebhooks);
 app.use("/api/educator", express.json(), educatorRouter);
 app.use("/api/course", express.json(), courseRouter);
 app.use("/api/user", express.json(), userRouter);

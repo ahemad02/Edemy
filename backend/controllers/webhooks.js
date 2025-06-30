@@ -7,22 +7,22 @@ import Course from "../models/Course.js";
 export const clerkWebhooks = async (req, res) => {
 
     try {
-
-        const payload = req.rawBody.toString(); // ✅ Correct raw string
         const headers = {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"],
         };
 
+        const payload = req.rawBody.toString("utf8");
+
         const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-        const evt = wh.verify(payload, headers); // ✅ Now properly verified
+        const event = wh.verify(payload, headers); // 🚀 uses raw verified payload
 
-        const { data, type } = evt;
+        const { type, data } = event;
 
-        if (!data || !data.id) {
-            console.error("❌ Invalid Clerk webhook data:", data);
-            return res.status(400).json({ success: false, message: "Invalid data" });
+        if (!data?.id) {
+            console.error("❌ Missing Clerk user ID:", data);
+            return res.status(400).json({ success: false, message: "Missing user ID" });
         }
 
         switch (type) {
