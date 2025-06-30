@@ -33,20 +33,23 @@ export const clerkWebhooks = async (req, res) => {
                     name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
                     imageUrl: data.image_url || "",
                 };
-                try {
-                    await User.create(userData);
-                    console.log("✅ User created in DB");
+               try {
+        const existingUser = await User.findById(userData._id);
 
-                    res.json({})
-                    break;
-                } catch (err) {
-                    console.error("❌ DB insert error:", err.message);
-                    res.json({
-                        success: false,
-                        message: err.message
-                    })
-                    break;
-                }
+        if (!existingUser) {
+            await User.create(userData);
+            console.log("✅ User created in DB");
+        } else {
+            console.log("ℹ️ User already exists, skipping creation.");
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("❌ DB insert error:", err.message);
+        res.json({ success: false, message: err.message });
+    }
+
+    break;
 
             }
             case "user.updated": {
