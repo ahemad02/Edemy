@@ -10,15 +10,17 @@ export const clerkWebhooks = async (req, res) => {
 
         console.log("✅ Received webhook:", req.body);
 
-        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-
-        await whook.verify(JSON.stringify(req.body), {
+        const payload = req.body; // This is raw Buffer
+        const headers = {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"],
-        });
+        };
 
-        const { data, type } = req.body;
+        const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+        const evt = wh.verify(payload, headers); // Correct: passing raw buffer
+
+        const { data, type } = evt;
 
         switch (type) {
             case "user.created": {
