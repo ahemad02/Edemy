@@ -13,12 +13,20 @@ export const clerkWebhooks = async (req, res) => {
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"]
         })
-        const { data, type } = req.body
+        const { data, type } = req.body;
+
+        console.log("Creating user with data:", userData);
+
 
         switch (type) {
             case 'user.created': {
+                const clerkUserId = data.id || data?.object_id || data?.external_id;
+                if (!clerkUserId) {
+                    console.error("❌ Clerk webhook user ID is missing", data);
+                    return res.status(400).json({ success: false, message: "User ID is missing in webhook" });
+                }
                 const userData = {
-                    _id: data.id,
+                    _id: clerkUserId,
                     email: data.email_addresses[0].email_address,
                     name: data.first_name + " " + data.last_name,
                     imageUrl: data.image_url,
