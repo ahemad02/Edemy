@@ -24,6 +24,10 @@ export const clerkWebhooks = async (req, res) => {
 
         switch (type) {
             case "user.created": {
+                if (!data.id) {
+                    console.error("❌ Missing user ID in Clerk webhook payload");
+                    return res.status(400).json({ success: false, message: "Missing user ID" });
+                }
                 const userData = {
                     _id: data.id,
                     email: data.email_addresses[0].email_address,
@@ -32,6 +36,8 @@ export const clerkWebhooks = async (req, res) => {
                 }
                 try {
                     await User.create(userData);
+                    console.log("✅ User created in DB");
+
                     res.json({})
                     break;
                 } catch (err) {
