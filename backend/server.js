@@ -20,7 +20,15 @@ app.use(clerkMiddleware())
 app.get("/", (req, res) => {
     res.send("Hello from the backend!");
 });
-app.post("/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
+app.post("/clerk", async (req, res, next) => {
+    try {
+        req.rawBody = await getRawBody(req);
+        next();
+    } catch (err) {
+        console.error("❌ Error parsing raw body", err.message);
+        return res.status(400).send("Invalid body");
+    }
+}, clerkWebhooks);
 
 app.use("/api/educator", express.json(), educatorRouter);
 app.use("/api/course", express.json(), courseRouter);

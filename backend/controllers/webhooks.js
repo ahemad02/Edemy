@@ -8,9 +8,7 @@ export const clerkWebhooks = async (req, res) => {
 
     try {
 
-        console.log("✅ Received webhook:", req.body);
-
-        const payload = req.body; // This is raw Buffer
+        const payload = req.rawBody.toString(); // ✅ Correct raw string
         const headers = {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
@@ -18,22 +16,23 @@ export const clerkWebhooks = async (req, res) => {
         };
 
         const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-        const evt = wh.verify(payload, headers); // Correct: passing raw buffer
+        const evt = wh.verify(payload, headers); // ✅ Now properly verified
 
         const { data, type } = evt;
 
+        if (!data || !data.id) {
+            console.error("❌ Invalid Clerk webhook data:", data);
+            return res.status(400).json({ success: false, message: "Invalid data" });
+        }
+
         switch (type) {
             case "user.created": {
-                if (!data.id) {
-                    console.error("❌ Missing user ID in Clerk webhook payload");
-                    return res.status(400).json({ success: false, message: "Missing user ID" });
-                }
                 const userData = {
                     _id: data.id,
-                    email: data.email_addresses[0].email_address,
-                    name: data.first_name + " " + data.last_name,
-                    imageUrl: data.image_url,
-                }
+                    email: data.email_addresses?.[0]?.email_address || "",
+                    name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+                    imageUrl: data.image_url || "",
+                };
                 try {
                     await User.create(userData);
                     console.log("✅ User created in DB");
