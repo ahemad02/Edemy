@@ -15,9 +15,6 @@ export const clerkWebhooks = async (req, res) => {
         })
         const { data, type } = req.body;
 
-        console.log("Creating user with data:", userData);
-
-
         switch (type) {
             case 'user.created': {
                 const clerkUserId = data.id || data?.object_id || data?.external_id;
