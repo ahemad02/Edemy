@@ -42,7 +42,7 @@ export const addCourse = async (req, res) => {
 
         const imageUpload = await cloudinary.uploader.upload(imageFile.path)
 
-        newCourse.thumbnail = imageUpload.secure_url;
+        newCourse.courseThumbnail = imageUpload.secure_url;
 
         await newCourse.save();
 
@@ -128,7 +128,7 @@ export const getEnrolledStudentsData = async (req, res) => {
 
         const courseIds = educatorCourses.map((course) => course._id);
 
-        const purchases = await Purchase.find({ courseId: { $in: courseIds }, status: "completed" }).populate("userId", "name imageUrl").populate("courseId", "courseTitle");
+        const purchases = await Purchase.find({ courseId: { $in: courseIds }, status: "completed" }).populate({ path: "userId", model: "User", localField: "userId", foreignField: "__id", justOne: true }, "name imageUrl").populate("courseId", "courseTitle");
 
         const enrolledStudents = purchases.map((purchase) => ({
             student: purchase.userId,

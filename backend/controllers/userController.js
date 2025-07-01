@@ -63,7 +63,7 @@ export const purchaseCourse = async (req, res) => {
 
         const userId = req.auth.userId;
 
-        const userData = await User.findById(userId);
+        const userData = await User.findOne({ __id: userId });
 
         const courseData = await Course.findById(courseId);
 
