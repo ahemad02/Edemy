@@ -87,7 +87,10 @@ export const educatorDashboardData = async (req, res) => {
 
         const totalEarnings = purchases.reduce((acc, purchase) => acc + purchase.amount, 0);
 
-        if (totalCourses === 0) return res.status(200).json({ success: true, totalCourses, totalEarnings, message: "No courses found" });
+        if (totalCourses.length == 0) return res.status(200).json({
+            success: true,
+            dashboardData: { totalCourses, totalEarnings, enrolledStudentsData: [] }, message: "No courses found"
+        });
 
         const enrolledStudentsData = [];
 
