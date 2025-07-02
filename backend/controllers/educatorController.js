@@ -128,13 +128,22 @@ export const getEnrolledStudentsData = async (req, res) => {
 
         const courseIds = educatorCourses.map((course) => course._id);
 
-        const purchases = await Purchase.find({ courseId: { $in: courseIds }, status: "completed" }).populate({ path: "userId", model: "User", localField: "userId", foreignField: "__id", justOne: true }, "name imageUrl").populate("courseId", "courseTitle");
+        const purchases = await Purchase.find({
+            courseId: { $in: courseIds },
+            status: "completed"
+        }).populate("courseId", "courseTitle");
 
-        const enrolledStudents = purchases.map((purchase) => ({
-            student: purchase.userId,
-            courseTitle: purchase.courseId.courseTitle,
-            purchaseDate: purchase.createdAt
-        }));
+        // Manually get users using __id
+        const enrolledStudents = await Promise.all(
+            purchases.map(async (purchase) => {
+                const user = await User.findOne({ __id: purchase.userId });
+                return {
+                    student: user ? { name: user.name, imageUrl: user.imageUrl } : null,
+                    courseTitle: purchase.courseId.courseTitle,
+                    purchaseDate: purchase.createdAt
+                };
+            })
+        );
 
         res.status(200).json({ success: true, enrolledStudents });
 

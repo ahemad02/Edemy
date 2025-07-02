@@ -36,9 +36,8 @@ const CourseCard = ({ course }) => {
         </div>
         <p className="text-base font-semibold text-gray-800">
           {currency}
-          {(
-            course.coursePrice -
-            (course.discount * course.coursePrice) / 100
+          {Math.floor(
+            course.coursePrice - (course.discount * course.coursePrice) / 100
           ).toFixed(2)}
         </p>
       </div>

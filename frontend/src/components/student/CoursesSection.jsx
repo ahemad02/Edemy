@@ -17,7 +17,7 @@ const CoursesSection = () => {
         business and wellness, our courses are crafted to deliver results.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 md:px-0 md:my-16 my-10">
+      <div className="grid gap-6 px-4 md:px-0 md:my-16 my-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
         {allCourses.slice(0, 4).map((course, index) => (
           <CourseCard course={course} key={index} />
         ))}

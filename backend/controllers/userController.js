@@ -98,7 +98,7 @@ export const purchaseCourse = async (req, res) => {
         const session = await stripeInstance.checkout.sessions.create({
             line_items,
             mode: "payment",
-            success_url: `${origin}/loading/my-enrollments`,
+            success_url: `${origin}/myenrollments`,
             cancel_url: `${origin}/`,
             mode: "payment",
             metadata: {
@@ -160,6 +160,8 @@ export const getUserCourseProgress = async (req, res) => {
 
         const progressData = await CourseProgress.findOne({ userId, courseId });
 
+        if (progressData === null) return res.status(200).json({ success: true, message: "No progress found", progressData: [] });
+
         res.status(200).json({ success: true, progressData });
 
     } catch (error) {
@@ -188,9 +190,9 @@ export const addUserRating = async (req, res) => {
             return res.status(404).json({ success: false, message: "Course not found" });
         }
 
-        const user = await User.findById(userId);
+        const user = await User.findOne({ __id: userId });
 
-        if (!user || user.enrolledCourses.includes(courseId)) {
+        if (!user || !user.enrolledCourses.includes(courseId)) {
             return res.status(404).json({ success: false, message: "User has not enrolled in this course" });
         }
 
