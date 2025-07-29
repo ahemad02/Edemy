@@ -163,7 +163,6 @@ const Player = () => {
   return null;
 };
 
-
   return courseData ? (
     <>
       <div className="p-4 sm:p-10 flex flex-col-reverse md:grid md:grid-cols-2 gap-10 md:px-36">
@@ -254,12 +253,17 @@ const Player = () => {
         </div>
         {/* right side */}
         <div className="md:mt-10">
-          {playerData ? (
-            <div>
-              <YouTube
-              videoId={extractVideoId(playerData.lectureUrl)}
-              iframeClassName="w-full aspect-video"
-               />
+               {playerData ? (
+        <div>
+          {(() => {
+            const videoId = extractVideoId(playerData.lectureUrl);
+            return videoId ? (
+              <YouTube videoId={videoId} iframeClassName="w-full aspect-video" />
+            ) : (
+              <p className="text-red-600">Invalid video URL</p>
+            );
+          })()}
+              
 
               <div className="flex justify-between items-center mt-1">
                 <p>
