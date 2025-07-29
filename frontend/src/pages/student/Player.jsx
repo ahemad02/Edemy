@@ -148,6 +148,22 @@ const Player = () => {
     }
   }, [courseData]);
 
+  const extractVideoId = (url) => {
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.hostname === "youtu.be") {
+      return urlObj.pathname.slice(1);
+    }
+    if (urlObj.hostname.includes("youtube.com")) {
+      return urlObj.searchParams.get("v") || urlObj.pathname.split("/").pop();
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+};
+
+
   return courseData ? (
     <>
       <div className="p-4 sm:p-10 flex flex-col-reverse md:grid md:grid-cols-2 gap-10 md:px-36">
@@ -241,9 +257,10 @@ const Player = () => {
           {playerData ? (
             <div>
               <YouTube
-                videoId={playerData.lectureUrl.split("/").pop()}
-                iframeClassName="w-full aspect-video"
-              />
+              videoId={extractVideoId(playerData.lectureUrl)}
+              iframeClassName="w-full aspect-video"
+               />
+
               <div className="flex justify-between items-center mt-1">
                 <p>
                   {playerData.chapter}.{playerData.lecture}.{" "}
