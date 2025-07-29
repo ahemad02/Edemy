@@ -192,10 +192,7 @@ const Player = () => {
                         <li key={index} className="flex items-start gap-2 py-1">
                           <img
                             src={
-                              progressData &&
-                              progressData.lectureCompleted.includes(
-                                lecture.lectureId
-                              )
+                               progressData?.lectureCompleted?.includes(lecture.lectureId)
                                 ? assets.blue_tick_icon
                                 : assets.play_icon
                             }
@@ -256,10 +253,10 @@ const Player = () => {
                   onClick={() => markLectureCompleted(playerData.lectureId)}
                   className="text-blue-600"
                 >
-                  {progressData &&
-                  progressData.lectureCompleted.includes(playerData.lectureId)
-                    ? "Completed"
-                    : "Mark Complete"}
+                 {progressData?.lectureCompleted?.includes(playerData.lectureId)
+                  ? "Completed"
+                   : "Mark Complete"}
+
                 </button>
               </div>
             </div>
